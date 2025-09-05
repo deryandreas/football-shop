@@ -8,3 +8,6 @@ class Product(models.Model):
     thumbnail = models.URLField()
     category = models.CharField(max_length=50)
     is_featured = models.BooleanField()
+
+    def __str__(self):
+        return self.name
