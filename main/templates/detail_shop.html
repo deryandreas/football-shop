@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shop Detail</title>
+</head>
+<body>
+    <h1>{{ shop_item.name }}</h1>
+    <p>Price: Rp {{ shop_item.price }}</p>
+    <p>Category: {{ shop_item.category }}</p>
+    <p>Description: {{ shop_item.description }}</p>
+    <p>Stock: {{ shop_item.stok }}</p>
+    <img src="{{ shop_item.thumbnail }}" alt="{{ shop_item.name }}" width="200">
+
+    <a href="{% url 'main:show_main' %}">Back to Shop List</a>
+</body>
+</html>

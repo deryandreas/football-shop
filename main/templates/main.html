@@ -1,6 +1,25 @@
-<h5>Nama Apps: </h5>
-<p>{{ nama_apps }}</p>
-<h5>Nama CEO: </h5>
-<p>{{ nama_ceo }}<p>
-<h5>Umur: </h5>
-<p>{{ umur }}</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ nama_apps }}</title>
+</head>
+<body>
+    <h1>{{ nama_apps }}</h1>
+    <p>CEO: {{ nama_ceo }}</p>
+    <p>Umur: {{ umur }}</p>
+
+    <a href="{% url 'main:create_shop' %}">Add Shop</a>
+
+    <h2>Shop List</h2>
+    <ul>
+    {% for shop in shop_list %}
+        <li>
+            <strong>{{ shop.name }}</strong> - Rp {{ shop.price }} - {{ shop.category }}
+            <a href="{% url 'main:show_detail' shop.id %}">Detail</a>
+        </li>
+    {% empty %}
+        <li>No shops yet.</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
