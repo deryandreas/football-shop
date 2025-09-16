@@ -1,3 +1,12 @@
+<img width="1919" height="1199" alt="Screenshot 2025-09-16 145339" src="https://github.com/user-attachments/assets/85af2cc3-e8e0-4244-b5b5-a04e2a3b3c31" />![WhatsApp Image 2025-09-16 at 14 53 45_66ce111e](https://github.com/user-attachments/assets/77981f01-0f3c-4cdb-be28-132476a07f3c)
+
+<img width="1919" height="1199" alt="Screenshot 2025-09-16 145403" src="https://github.com/user-attachments/assets/787a19bc-bc3c-4cab-828f-8cadfa976ba1" />
+
+<img width="1919" height="1199" alt="Screenshot 2025-09-16 150421" src="https://github.com/user-attachments/assets/a94a51c6-e07b-4fa9-9353-b98f6aa560ac" />
+
+<img width="1919" height="1199" alt="Screenshot 2025-09-16 150445" src="https://github.com/user-attachments/assets/e0fbfd6f-01a1-4089-bc1b-7c3033f11f76" />
+
+
 1.
 Dalam pengembangan platform, data delivery diperlukan karena berfungsi sebagai penghubung antara backend dan frontend. Backend yang mengolah data perlu mengirim hasilnya dalam format yang bisa dimengerti oleh frontend. Dengan adanya data delivery, informasi bisa ditampilkan di web, aplikasi mobile, atau bahkan diakses sistem lain dengan mudah dan konsisten.
 
@@ -11,4 +20,10 @@ Method is_valid() pada form Django digunakan untuk mengecek apakah data yang dik
 csrf_token dibutuhkan untuk melindungi aplikasi dari serangan CSRF (Cross-Site Request Forgery). Token ini memastikan bahwa request form benar-benar berasal dari pengguna yang sah, bukan dari situs luar yang mencoba memanfaatkan sesi pengguna. Jika tidak menggunakan csrf_token, penyerang bisa membuat halaman palsu yang secara diam-diam mengirim request berbahaya ke server kita.
 
 5.
+<<<<<<< HEAD
 Implementasi checklist sayaa lakukan step by step mulai dari membuat model Shop, lalu membuat form dengan ShopForm, menyiapkan views untuk create, list, dan detail data. Setelah itu, saya buat template HTML (main.html, create_shop.html, dan detail_shop.html) untuk menampilkan hasilnya. Selanjutnya saya menambahkan URL patterns di urls.py sesuai kebutuhan, lalu membuat endpoint untuk serialisasi data ke JSON dan XML, baik untuk semua data maupun berdasarkan ID. Semua langkah ini saya lakukan dengan memahami alurnya, bukan hanya sekadar copy-paste dari tutorial.
+=======
+Implementasi checklist saya lakukan step by step mulai dari membuat model Shop, lalu membuat form dengan ShopForm, menyiapkan views untuk create, list, dan detail data. Setelah itu, saya buat template HTML (main.html, create_shop.html, dan detail_shop.html) untuk menampilkan hasilnya. Selanjutnya saya menambahkan URL patterns di urls.py sesuai kebutuhan, lalu membuat endpoint untuk serialisasi data ke JSON dan XML, baik untuk semua data maupun berdasarkan ID. Semua langkah ini saya lakukan dengan memahami alurnya, bukan hanya sekadar copy-paste dari tutorial.
+
+
+>>>>>>> b91b7d7f8f2b0c88a45c0e949b284059fe2f14bc
