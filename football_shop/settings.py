@@ -125,6 +125,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://dery-andreas-footballshop.pbp.cs.ui.ac.id",
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
