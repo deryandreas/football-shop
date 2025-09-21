@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Shop Detail</title>
@@ -13,4 +13,28 @@
 
     <a href="{% url 'main:show_main' %}">Back to Shop List</a>
 </body>
-</html>
+</html> -->
+
+{% extends 'base.html' %}
+{% block content %}
+<p><a href="{% url 'main:show_main' %}"><button>← Back to Shop List</button></a></p>
+
+<h1>{{ shop.title }}</h1>
+<p><b>{{ shop.get_category_display }}</b>{% if shop.is_featured %} | 
+    <b>Featured</b>{% endif %}{% if shop.is_shop_hot %} | 
+    <b>Hot</b>{% endif %} | <i>{{ shop.created_at|date:"d M Y, H:i" }}</i> 
+    | Views: {{ shop.shop_views }}</p>
+
+{% if shop.thumbnail %}
+<img src="{{ shop.thumbnail }}" alt="Shop thumbnail" width="300">
+<br /><br />
+{% endif %}
+
+<p>{{ shop.content }}</p>
+{% if shop.user %}
+    <p>Author: {{ shop.user.username }}</p>
+{% else %}
+    <p>Author: Anonymous</p>
+{% endif %}
+
+{% endblock content %}

@@ -1,5 +1,7 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User
+
 
 # Create your models here.
 class Shop(models.Model):
@@ -20,7 +22,8 @@ class Shop(models.Model):
     is_featured = models.BooleanField(default=False)
     stok = models.PositiveIntegerField(default=0)
     product_views = models.PositiveIntegerField(default=0)
-    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) # tambahkan ini
+
     def __str__(self):
         return self.name
     
