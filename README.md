@@ -17,7 +17,7 @@ JSON lebih baik dipakai di kebanyakan aplikasi modern karena formatnya lebih sed
 Method is_valid() pada form Django digunakan untuk mengecek apakah data yang dikirim pengguna sesuai aturan yang ditentukan di form atau model. Jika valid, data bisa diproses lebih lanjut. Jika tidak, Django memberi tahu bagian mana yang salah supaya pengguna bisa memperbaikinya. Tanpa validasi ini, data bisa berantakan atau bahkan berbahaya jika langsung disimpan.
 
 4.
-csrf_token dibutuhkan untuk melindungi aplikasi dari serangan CSRF (Cross-Site Request Forgery). Token ini memastikan bahwa request form benar-benar berasal dari pengguna yang sah, bukan dari situs luar yang mencoba memanfaatkan sesi pengguna. Jika tidak menggunakan csrf_token, penyerang bisa membuat halaman palsu yang secara diam-diam mengirim request berbahaya ke server kita.
+csrf_token dibutuhkan untuk melindungi aplikasi dari serangan CSRF (Cross-Site Request Forgery). Token ini memastikan bahwa request form benar-benar berasal dari pengguna yang sah, bukan dari situs luar yang mencoba memanfaatkan sesi pengguna. Jika tidak menggunakan csrf_token, penyerang bisa membuat halaman palsu yang secara diam-diam mengirimm request berbahaya ke server kita.
 
 5.
 <<<<<<< HEAD
