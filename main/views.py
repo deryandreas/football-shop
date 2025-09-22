@@ -24,8 +24,10 @@ def show_main(request):
 
     context = {
         'npm': '2406347380',
-        'name': "Dery Andreas Tampubolon",
+        'nama_apps': 'Exercise Sport',
+        'nama_ceo': "Dery Andreas Tampubolon",
         'class': 'PBP D',
+        'umur': 19,
         'shop_list': shop_list,
         'last_login': request.COOKIES.get('last_login', 'Never')
     }
