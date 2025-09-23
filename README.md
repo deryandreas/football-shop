@@ -1,3 +1,50 @@
+TUGAS 2
+
+1. Implementasi checklist step-by-step
+
+Pertama, saya membuat sebuah fungsi pada views.py yang mengembalikan data berupa nama aplikasi serta nama dan kelas saya. Data tersebut kemudian saya hubungkan dengan sebuah template HTML agar bisa ditampilkan di browser. Setelah itu, saya menambahkan routing pada urls.py di dalam aplikasi main supaya URL tertentu dapat diarahkan ke fungsi yang sudah saya buat di views.py. Jika URL tersebut diakses, maka template yang berisi informasi tadi akan ditampilkan. Setelah aplikasi berjalan di lokal, saya melakukan deployment ke PWS dengan cara push project ke repository PWS menggunakan akun dan password PWS, sehingga aplikasi bisa diakses secara online. Terakhir, saya membuat file README.md yang berisi tautan aplikasi di PWS serta jawaban pertanyaan refleksi.
+
+2. Bagan request–response Django
+
+Alurnya seperti ini:
+
+Client mengirim request ke server Django.
+
+Request pertama kali masuk ke urls.py untuk dicocokkan dengan pola URL.
+
+Jika cocok, request diteruskan ke fungsi yang sesuai di views.py.
+
+Di dalam views.py, fungsi bisa mengambil/mengolah data dari models.py bila diperlukan.
+
+Setelah itu, hasilnya dikirim ke template HTML untuk dirender menjadi tampilan.
+
+Response HTML yang sudah jadi dikembalikan ke client (browser).
+
+Kaitannya:
+
+urls.py berfungsi sebagai “peta jalan” request.
+
+views.py berperan sebagai “otak” yang mengatur logika dan menghubungkan data dengan template.
+
+models.py menyimpan struktur data/database yang bisa diambil views.
+
+Template HTML menampilkan data yang sudah diolah views ke user.
+
+3. Peran settings.py
+
+File settings.py adalah pusat konfigurasi Django. Isinya antara lain daftar aplikasi yang dipakai, konfigurasi database, static files, template path, security (secret key, debug mode, allowed hosts), hingga konfigurasi deployment. Intinya, semua pengaturan proyek Django diatur di sini.
+
+4. Cara kerja migrasi database di Django
+
+Migrasi database di Django bekerja dengan cara membandingkan model yang ada di models.py dengan struktur database yang sekarang. Jika ada perubahan (misalnya menambah field, membuat tabel baru, atau menghapus field), maka Django akan membuat file migrasi yang berisi instruksi perubahan. File migrasi tersebut bisa dijalankan agar database mengikuti perubahan yang ada di model, sehingga konsistensi antara kode dan database tetap terjaga.
+
+5. Alasan Django dipilih sebagai framework pertama
+
+Django dipilih karena sifatnya “batteries included”, artinya sudah menyediakan banyak fitur bawaan (autentikasi, ORM, template engine, dll.) sehingga memudahkan pemula untuk belajar. Django juga menekankan pola desain MTV (Model–Template–View) yang rapi, sehingga mahasiswa bisa memahami alur request–response web development dengan jelas. Selain itu, dokumentasi Django lengkap dan komunitasnya besar, membuatnya cocok untuk dijadikan pintu masuk mempelajari pengembangan perangkat lunak berbasis framework.
+
+
+TUGAS 3
+
 <img width="1919" height="1199" alt="Screenshot 2025-09-16 145339" src="https://github.com/user-attachments/assets/85af2cc3-e8e0-4244-b5b5-a04e2a3b3c31" />![WhatsApp Image 2025-09-16 at 14 53 45_66ce111e](https://github.com/user-attachments/assets/77981f01-0f3c-4cdb-be28-132476a07f3c)
 
 <img width="1919" height="1199" alt="Screenshot 2025-09-16 145403" src="https://github.com/user-attachments/assets/787a19bc-bc3c-4cab-828f-8cadfa976ba1" />
