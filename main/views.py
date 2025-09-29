@@ -49,12 +49,17 @@ def create_shop(request):
 
     return render(request, "create_shop.html", context)
 
-# Detail shop (pakai UUID)
+
 @login_required(login_url='/login')
-def show_detail(request, shop_id):
-    shop_item = get_object_or_404(Shop, pk=shop_id)
-    shop_item.increment_views()  # contoh: nambah views
-    return render(request, "detail_shop.html", {"shop_item": shop_item})
+def show_shop(request, id):
+    shop = get_object_or_404(Shop, pk=id)
+    shop.increment_views()
+
+    context = {
+        'shop': shop
+    }
+
+    return render(request, "detail_shop.html", context)
 
 # Semua data XML
 def show_xml(request):
@@ -113,3 +118,22 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('main:login'))
     response.delete_cookie('last_login')
     return response
+
+def edit_shop(request, id):
+    shop = get_object_or_404(Shop, pk=id)
+    form = ShopForm(request.POST or None, instance=shop)
+    if form.is_valid() and request.method == 'POST':
+        form.save()
+        return redirect('main:show_main')
+
+    context = {
+        'form': form
+    }
+
+    return render(request, "edit_shop.html", context)
+
+def delete_shop(request, id):
+    shop = get_object_or_404(Shop, pk=id)
+    shop.delete()
+    return HttpResponseRedirect(reverse('main:show_main'))
+

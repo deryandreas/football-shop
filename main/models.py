@@ -23,13 +23,14 @@ class Shop(models.Model):
     stok = models.PositiveIntegerField(default=0)
     product_views = models.PositiveIntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) # tambahkan ini
+    diskon = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
     
     @property
     def is_product_discount(self):
-        return self.product_views > 20
+        return self.diskon > 0
         
     def increment_views(self):
         self.product_views += 1
