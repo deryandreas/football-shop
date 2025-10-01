@@ -1,22 +1,18 @@
-// main/static/js/script.js
-// source: gemini
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Ambil elemen dengan ID yang ditambahkan di navbar.html
+
     const button = document.getElementById('mobile-menu-button');
     const menu = document.getElementById('mobile-menu');
 
     if (button && menu) {
+        
+        // Logic Utama: Toggle menu saat tombol diklik
         button.addEventListener('click', () => {
-            // **PENAMBAHAN UTAMA:**
-            // classList.toggle('hidden') akan menghapus 'hidden' (menampilkan menu) 
-            // jika ada, dan menambahkannya kembali (menyembunyikan menu) jika tidak ada.
+            // Toggle kelas 'hidden' untuk menampilkan/menyembunyikan menu (Tailwind)
             menu.classList.toggle('hidden');
             
-            // **PENAMBAHAN (OPSIONAL) Ikon Animasi:**
+            // Logic Mengubah Ikon (fa-bars <-> fa-times)
             const icon = button.querySelector('i');
             if (icon) {
-                // Periksa apakah menu sedang tersembunyi (kelas 'hidden' ada)
                 if (menu.classList.contains('hidden')) {
                     // Menu tertutup: Tampilkan ikon hamburger
                     icon.classList.remove('fa-times');
@@ -28,20 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-    }
 
-    // **PENAMBAHAN (OPSIONAL) Tutup Menu Otomatis Saat Link Diklik:**
-    if (menu) {
+        // Logic Tambahan: Tutup Menu Otomatis Saat Link di menu mobile Diklik
         menu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
-                // Hanya jalankan di mobile (asumsi button ada)
-                if (button) {
+                // Tutup menu hanya jika sedang terbuka
+                if (!menu.classList.contains('hidden')) {
                     menu.classList.add('hidden');
-                    // Kembalikan ikon
+                    
+                    // Kembalikan ikon ke hamburger
                     const icon = button.querySelector('i');
                     if (icon) {
-                         icon.classList.remove('fa-times');
-                         icon.classList.add('fa-bars');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
                     }
                 }
             });
