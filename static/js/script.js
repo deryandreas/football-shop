@@ -1,20 +1,22 @@
+// main/static/js/script.js
+// source: gemini
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Ambil elemen tombol dan menu menggunakan ID
-    // Pastikan ID 'mobile-menu-button' dan 'mobile-menu' sudah ada di navbar.html
+    // Ambil elemen dengan ID yang ditambahkan di navbar.html
     const button = document.getElementById('mobile-menu-button');
     const menu = document.getElementById('mobile-menu');
 
-    // Pastikan kedua elemen ditemukan di DOM sebelum menambahkan event listener
     if (button && menu) {
-        
-        // Logic Utama: Toggle menu saat tombol diklik
         button.addEventListener('click', () => {
-            // Toggle kelas 'hidden' untuk menampilkan/menyembunyikan menu (Tailwind)
+            // **PENAMBAHAN UTAMA:**
+            // classList.toggle('hidden') akan menghapus 'hidden' (menampilkan menu) 
+            // jika ada, dan menambahkannya kembali (menyembunyikan menu) jika tidak ada.
             menu.classList.toggle('hidden');
             
-            // Logic Mengubah Ikon (fa-bars <-> fa-times)
+            // **PENAMBAHAN (OPSIONAL) Ikon Animasi:**
             const icon = button.querySelector('i');
             if (icon) {
+                // Periksa apakah menu sedang tersembunyi (kelas 'hidden' ada)
                 if (menu.classList.contains('hidden')) {
                     // Menu tertutup: Tampilkan ikon hamburger
                     icon.classList.remove('fa-times');
@@ -26,19 +28,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    }
 
-        // Logic Tambahan: Tutup Menu Otomatis Saat Link di menu mobile Diklik
+    // **PENAMBAHAN (OPSIONAL) Tutup Menu Otomatis Saat Link Diklik:**
+    if (menu) {
         menu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
-                // Tutup menu hanya jika sedang terbuka
-                if (!menu.classList.contains('hidden')) {
+                // Hanya jalankan di mobile (asumsi button ada)
+                if (button) {
                     menu.classList.add('hidden');
-                    
-                    // Kembalikan ikon ke hamburger
+                    // Kembalikan ikon
                     const icon = button.querySelector('i');
                     if (icon) {
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
+                         icon.classList.remove('fa-times');
+                         icon.classList.add('fa-bars');
                     }
                 }
             });
