@@ -91,7 +91,7 @@
 <script>
     // Configuration
     const SHOP_ID = "{{ shop.id }}";
-    const SHOP_DETAIL_ENDPOINT = `{% url 'main:show_shop_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', SHOP_ID);
+    const SHOP_DETAIL_ENDPOINT = `{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', SHOP_ID);
 
     // DOM Elements
     const loadingState = document.getElementById('loading-state');
