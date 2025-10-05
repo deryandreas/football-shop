@@ -269,15 +269,19 @@ def login_user_ajax(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def register_user_ajax(request):
+    # Debug log untuk lihat isi request
+    print("REQUEST BODY RAW:", request.body)
+
     try:
         data = json.loads(request.body)
+        print("PARSED JSON:", data)
     except json.JSONDecodeError:
         return JsonResponse({
             "status": "error",
             "message": "Invalid JSON format."
         }, status=400)
 
-    # Buat form pakai dict yang sesuai field form Django
+    # Buat form dengan field sesuai UserCreationForm
     form = UserCreationForm({
         'username': data.get('username', ''),
         'password1': data.get('password1', ''),
@@ -293,12 +297,13 @@ def register_user_ajax(request):
         }, status=201)
     else:
         errors = dict(form.errors.items())
+        print("FORM ERRORS:", errors)  # tambahan debug
         return JsonResponse({
             "status": "error",
             "message": "Registration failed.",
             "errors": errors
         }, status=400)
-    
+        
 @csrf_exempt
 @require_http_methods(["POST"])
 def logout_user_ajax(request):

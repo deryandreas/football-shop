@@ -23,10 +23,6 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
-
-    # ------------------------------------
-    # --- ENDPOINT CRUD AJAX (FIX TOTAL) ---
-    # ------------------------------------
     
     # 1. CREATE AJAX (Nama yang dicari oleh Baris 104 JavaScript yang error)
     path('create-ajax/', views.create_shop_ajax, name='create_shop_ajax'), 
@@ -42,6 +38,6 @@ urlpatterns = [
     
     # --- ENDPOINT AUTH AJAX ---
     path('login-ajax/', views.login_user_ajax, name='login_ajax'),
-    path('register-ajax/', views.register_user_ajax, name='register_ajax'),
+    path('register-ajax/', views.register_user_ajax, name='register_ajax'), 
     path('logout-ajax/', views.logout_user_ajax, name='logout_ajax'),
 ]

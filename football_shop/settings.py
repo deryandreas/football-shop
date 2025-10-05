@@ -130,6 +130,9 @@ CSRF_TRUSTED_ORIGINS = [
     "https://dery-andreas-footballshop.pbp.cs.ui.ac.id",
 ]
 
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 

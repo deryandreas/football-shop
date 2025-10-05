@@ -73,7 +73,6 @@
 </div>
 
 <script>
-// PENTING: Asumsi fungsi showToast dan getCookie sudah ada di base.html atau main.html Anda.
 
 const REGISTER_API_ENDPOINT = "{% url 'main:register_user_ajax' %}";
 const LOGIN_PAGE_URL = "{% url 'main:login' %}";
@@ -106,8 +105,7 @@ async function handleRegisterAjax(event) {
 
     const data = {
     username: document.getElementById('username').value,
-    password: document.getElementById('password').value, 
-    password1: document.getElementById('password').value, 
+    password1: document.getElementById('password1').value, 
     password2: document.getElementById('password2').value, 
 };
 
@@ -128,7 +126,7 @@ async function handleRegisterAjax(event) {
         const responseData = await response.json();
 
         if (response.ok) {
-            showToast(`Welcome, ${responseData.username || data.username}! Account created.`, 'success');
+          showToast('Success', `Welcome, ${responseData.username || data.username}! Account created.`, 'success');
             
             setTimeout(() => {
                 window.location.href = LOGIN_PAGE_URL;
@@ -148,11 +146,11 @@ async function handleRegisterAjax(event) {
                 }
             }
             
-            showToast(errorMessage, 'error');
+              showToast('Error', errorMessage, 'error');
         }
         
     } catch (error) {
-        showToast('Network error. Please try again.', 'error');
+        showToast('Error', 'Network error. Please try again.', 'error');
     } finally {
         registerButton.disabled = false;
         registerButton.textContent = 'Create Account';
