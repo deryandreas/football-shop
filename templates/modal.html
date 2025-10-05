@@ -16,41 +16,55 @@
         <span class="sr-only">Close modal</span>
       </button>
     </div>
-    <!-- Modal body -->
-    <div class="px-6 py-4 space-y-6 form-style">
-      <form id="shopForm">
+  <div class="px-6 py-4 space-y-6 form-style">
+    <form id="shopForm">
         <div class="mb-4">
-          <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-          <input type="text" id="title" name="title" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Enter shop title" required>
+            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+            <input type="text" id="name" name="name" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Enter shop name" required>
         </div>
+
         <div class="mb-4">
-          <label for="content" class="block text-sm font-medium text-gray-700">Content</label>
-          <textarea id="content" name="content" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Enter shop content" required></textarea>
+            <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+            <input type="number" id="price" name="price" value="0" min="0" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" required>
         </div>
+        
+        <div class="mb-4">
+            <label for="thumbnail" class="block text-sm font-medium text-gray-700">Thumbnail</label>
+            <input type="url" id="thumbnail" name="thumbnail" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="https://example.com/image.jpg">
+        </div>
+
+        <div class="mb-4">
+            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+            <textarea id="description" name="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Enter shop description" required></textarea>
+        </div>
+        
         <div class="mb-4">
           <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
           <select id="category" name="category" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" required>
-            <option value="">Choose a category</option>
-            <option value="transfer">Transfer</option>
-            <option value="update">Update</option>
-            <option value="exclusive">Exclusive</option>
-            <option value="match">Match</option>
-            <option value="rumor">Rumor</option>
-            <option value="analysis">Analysis</option>
+              <option value="">---------</option>
+              
+              <option value="kaos_adidas">Kaos Adidas</option>
+              <option value="sepatu_merah">Sepatu Merah</option>
+              <option value="jersey">Jersey</option>
+              <option value="bola">Bola</option>
+              <option value="sepatu_futsal">Sepatu Futsal</option>
           </select>
         </div>
+
         <div class="mb-4">
-          <label for="thumbnail" class="block text-sm font-medium text-gray-700">Thumbnail URL</label>
-          <input type="url" id="thumbnail" name="thumbnail" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" placeholder="https://example.com/image.jpg">
+            <div class="flex items-center">
+                <input id="is_featured" name="is_featured" type="checkbox" class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded">
+                <label for="is_featured" class="ml-2 text-sm font-medium text-gray-900">Is featured</label>
+            </div>
         </div>
+
         <div class="mb-4">
-          <div class="flex items-center">
-            <input id="is_featured" name="is_featured" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded">
-            <label for="is_featured" class="ml-2 text-sm font-medium text-gray-900">Featured Shop</label>
-          </div>
+            <label for="stok" class="block text-sm font-medium text-gray-700">Stok</label>
+            <input type="number" id="stok" name="stok" value="0" min="0" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" required>
         </div>
-      </form>
-    </div>
+        
+        </form>
+</div>
     <!-- Modal footer -->
     <div class="flex flex-col sm:flex-row gap-4 p-6 border-t border-gray-200 rounded-b">
       <button type="button" id="cancelButton" class="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-center" onclick="hideModal()">Cancel</button>

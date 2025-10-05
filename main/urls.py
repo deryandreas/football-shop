@@ -1,26 +1,47 @@
+# main/urls.py
 from django.urls import path
-from main.views import show_main, show_xml, show_json, show_xml_by_id, show_json_by_id, create_shop, show_shop, add_shop_entry_ajax
-from main.views import register
-from main.views import login_user
-from main.views import logout_user
-from main.views import edit_shop
-from main.views import delete_shop
+from . import views 
+from uuid import UUID 
 
 app_name = 'main'
 
 urlpatterns = [
-    path('', show_main, name='show_main'),
-    path('xml/', show_xml, name='show_xml'),
-    path('json/', show_json, name='show_json'),
-    path('xml/<uuid:shop_id>/', show_xml_by_id, name='show_xml_by_id'),
-    path('json/<uuid:shop_id>/', show_json_by_id, name='show_json_by_id'),
-    path('add/', create_shop, name='create_shop'),
-    path('register/', register, name='register'),
-    path('login/', login_user, name='login'),
-    path('logout/', logout_user, name='logout'),
-    path('shop/<uuid:id>/edit', edit_shop, name='edit_shop'),
-    path('shop/<uuid:id>/delete', delete_shop, name='delete_shop'),
-    path('shop/<str:id>/', show_shop, name='show_shop'),
-    path('create-shop-ajax/', add_shop_entry_ajax, name='add_shop_entry_ajax'),
+    # --- URL TAMPILAN UTAMA & DATA FEED ---
+    path('', views.show_main, name='show_main'),
+    path('xml/', views.show_xml, name='show_xml'),
+    path('json/', views.show_json, name='show_json'),
+    path('xml/<uuid:shop_id>/', views.show_xml_by_id, name='show_xml_by_id'),
+    path('json/<uuid:shop_id>/', views.show_json_by_id, name='show_json_by_id'),
+    
+    # --- URL CRUD MANUAL ---
+    path('add/', views.create_shop, name='create_shop'),
+    path('shop/<str:id>/', views.show_shop, name='show_shop'),
+    path('shop/<uuid:id>/edit', views.edit_shop, name='edit_shop'),
+    path('shop/<uuid:id>/delete', views.delete_shop, name='delete_shop'),
 
+    # --- URL AUTHENTICATION MANUAL ---
+    path('register/', views.register, name='register'),
+    path('login/', views.login_user, name='login'),
+    path('logout/', views.logout_user, name='logout'),
+
+    # ------------------------------------
+    # --- ENDPOINT CRUD AJAX (FIX TOTAL) ---
+    # ------------------------------------
+    
+    # 1. CREATE AJAX (Nama yang dicari oleh Baris 104 JavaScript yang error)
+    path('create-ajax/', views.create_shop_ajax, name='create_shop_ajax'), 
+
+    # 2. CREATE AJAX (NAMA LAMA: Ini adalah perbaikan wajib untuk Traceback Anda)
+    path('add-entry-ajax/', views.create_shop_ajax, name='add_shop_entry_ajax'), 
+    
+    # UPDATE AJAX
+    path('edit-ajax/<uuid:id>/', views.edit_shop_ajax, name='edit_shop_ajax'),
+    
+    # DELETE AJAX
+    path('delete-ajax/<uuid:id>/', views.delete_shop_ajax, name='delete_shop_ajax'),
+    
+    # --- ENDPOINT AUTH AJAX ---
+    path('login-ajax/', views.login_user_ajax, name='login_ajax'),
+    path('register-ajax/', views.register_user_ajax, name='register_ajax'),
+    path('logout-ajax/', views.logout_user_ajax, name='logout_ajax'),
 ]

@@ -15,10 +15,22 @@
       <p class="text-gray-600">Stay updated with the latest football stories and analysis</p>
     </div>
 
-    <button onclick="showModal()"
-        class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-6">
-      Create Shop by AJAX
-    </button>
+    <div class="flex justify-between items-center mb-6">
+        <button onclick="showCreateModal()"
+            class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Create Shop by AJAX
+        </button>
+
+        <button onclick="fetchShopFromServer(true)" 
+                class="text-gray-500 hover:text-green-600 transition-colors" title="Refresh List">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m15.356-5v5h-.582m-14.356 2.5v5h.582m15.356-2A8.001 8.001 0 014.582 15m15.356 2v5h-.582M4 17h.582" />
+            </svg>
+        </button>
+    </div>
     
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 bg-white rounded-lg border border-gray-200 p-4">
       <div class="flex space-x-3 mb-4 sm:mb-0">
@@ -42,7 +54,7 @@
       <p class="text-gray-600 mt-3">Loading shop...</p>
     </div>
 
-    <div id="error" class="hidden"></div>
+    <div id="error" class="hidden text-red-600 p-4 border border-red-300 bg-red-50 rounded-lg"></div>
 
     <div id="grid" class="hidden"></div>
 
@@ -59,16 +71,56 @@
 
   </div>
 </div>
-<script>
-// Fungsi Placeholder untuk Tombol AJAX (Jika modal belum dibuat)
-function showModal() {
-    console.log("Create Shop Modal triggered.");
-    // Logika untuk menampilkan modal Anda akan diletakkan di sini.
-}
 
-// Configuration
+<div id="shopModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden max-h-screen">
+    <div id="modal-content" class="overflow-y-auto p-6">
+      </div>
+  </div>
+</div>
+
+<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Confirm Deletion</h3>
+        <p class="text-gray-600 mb-6">Are you sure you want to delete this shop? This action cannot be undone.</p>
+        <div class="flex justify-end space-x-3">
+            <button onclick="closeDeleteModal()" class="px-4 py-2 text-gray-700 rounded-md hover:bg-gray-100">Cancel</button>
+            <button id="confirmDeleteButton" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container" class="fixed bottom-4 right-4 space-y-2 z-50">
+  </div>
+
+
+<script>
+// --- KONFIGURASI DAN UTILITAS ---
+// URL AJAX sudah fix dengan views.py dan urls.py yang baru
 const SHOP_API_ENDPOINT = "{% url 'main:show_json' %}";
 const CURRENT_USER_ID = "{{ user.id|default_if_none:'' }}";
+
+// --- PERBAIKAN UTAMA: MENGGANTI NAMA URL LAMA DENGAN NAMA FUNGSI BARU ---
+const CREATE_SHOP_API = "{% url 'main:create_shop_ajax' %}"; 
+const EDIT_SHOP_API = (id) => "{% url 'main:edit_shop_ajax' id='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', id);
+const DELETE_SHOP_API = (id) => "{% url 'main:delete_shop_ajax' id='00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', id);
+
+// Fungsi untuk mendapatkan CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const CSRF_TOKEN = getCookie('csrftoken');
 
 // DOM Elements
 const loadingSpinner = document.getElementById('loading');
@@ -77,57 +129,277 @@ const emptyStateDisplay = document.getElementById('empty');
 const shopGridContainer = document.getElementById('grid');
 const showAllShopButton = document.getElementById('filter-all');
 const showMyShopButton = document.getElementById('filter-my');
+const shopModal = document.getElementById('shopModal'); 
+const modalContent = document.getElementById('modal-content'); 
+const deleteModal = document.getElementById('deleteModal'); 
+const confirmDeleteButton = document.getElementById('confirmDeleteButton'); 
 
 // State Variables
 let activeFilter = 'all';
 let allShopData = [];
 
-// Update filter button appearance
-function updateFilterButtonsAppearance() {
-  if (!showAllShopButton || !showMyShopButton) return;
-  
-  // Mengganti class list untuk memastikan styling tombol benar
-  const activeClass = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer';
-  const inactiveClass = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white cursor-pointer';
 
-  if (activeFilter === 'all') {
-    showAllShopButton.className = activeClass;
-    showMyShopButton.className = inactiveClass;
-  } else {
-    showMyShopButton.className = activeClass;
-    showAllShopButton.className = inactiveClass;
-  }
+// --- FUNGSI TOAST NOTIFIKASI ---
+function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toast-container');
+    const color = type === 'success' ? 'bg-green-600' : (type === 'error' ? 'bg-red-600' : 'bg-blue-600');
+    
+    const toast = document.createElement('div');
+    toast.className = `p-4 rounded-lg text-white shadow-xl ${color} transition-all duration-500 ease-out transform translate-x-0 opacity-100`;
+    toast.innerHTML = `<p class="font-semibold">${message}</p>`;
+
+    toastContainer.prepend(toast); 
+    
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+    }, 10);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
 }
 
-// Show/hide page sections
-function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
-  loadingSpinner.classList.toggle('hidden', !showLoading);
-  errorMessage.classList.toggle('hidden', !showError);
-  emptyStateDisplay.classList.toggle('hidden', !showEmpty);
-  shopGridContainer.classList.toggle('hidden', !showGrid);
 
-  // Add grid classes when showing grid
-  if (showGrid) {
-    shopGridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
-  }
+// --- FUNGSI MODAL DAN FORMULIR CRUD ---
+function closeModal() {
+    shopModal.classList.add('hidden');
+    modalContent.innerHTML = ''; 
+}
+
+// Template Form yang SINKRON 100% dengan field Anda (Name, Price, Stok)
+function getShopFormTemplate(shop = {}) {
+    const isUpdate = shop.id !== undefined;
+    const formTitle = isUpdate ? 'Update Shop' : 'Create New Shop';
+    const submitButtonText = isUpdate ? 'Save Changes' : 'Publish Shop';
+    const formAction = isUpdate ? 'update' : 'create';
+
+    const name = shop.name || '';
+    const price = shop.price || 0;
+    const thumbnail = shop.thumbnail || '';
+    const description = shop.description || '';
+    const category = shop.category || '';
+    const isFeatured = shop.is_featured ? 'checked' : '';
+    const stok = shop.stok || 0;
+
+    return `
+        <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
+            <h3 class="text-xl font-bold text-gray-900">${formTitle}</h3>
+            <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+        
+        <form id="shop-ajax-form" data-shop-id="${shop.id || ''}" data-action="${formAction}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
+            
+            <div class="space-y-4">
+                <p class="text-sm text-gray-500">Share your football shop and stories with the community</p>
+
+                <div>
+                    <label for="id_name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="id_name" name="name" value="${name}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2" required>
+                </div>
+
+                <div>
+                    <label for="id_price" class="block text-sm font-medium text-gray-700">Price</label>
+                    <input type="number" id="id_price" name="price" value="${price}" min="0" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2" required>
+                </div>
+                
+                <div>
+                    <label for="id_thumbnail" class="block text-sm font-medium text-gray-700">Thumbnail</label>
+                    <input type="url" id="id_thumbnail" name="thumbnail" value="${thumbnail}" placeholder="URL Gambar Produk"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2">
+                </div>
+
+                <div>
+                    <label for="id_description" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="id_description" name="description" rows="4" 
+                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2" required>${description}</textarea>
+                </div>
+
+                <div>
+                    <label for="id_category" class="block text-sm font-medium text-gray-700">Category</label>
+                    <select id="id_category" name="category" 
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2" required>
+                        <option value="">---------</option>
+                        <option value="kaos_adidas" ${category === 'kaos_adidas' ? 'selected' : ''}>Kaos Adidas</option>
+                        <option value="sepatu_merah" ${category === 'sepatu_merah' ? 'selected' : ''}>Sepatu Merah</option>
+                        <option value="jersey" ${category === 'jersey' ? 'selected' : ''}>Jersey</option>
+                        <option value="bola" ${category === 'bola' ? 'selected' : ''}>Bola</option>
+                        <option value="sepatu_futsal" ${category === 'sepatu_futsal' ? 'selected' : ''}>Sepatu Futsal</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="id_is_featured" name="is_featured" ${isFeatured}
+                           class="h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                    <label for="id_is_featured" class="block text-sm text-gray-700">Is featured</label>
+                </div>
+
+                <div>
+                    <label for="id_stok" class="block text-sm font-medium text-gray-700">Stok</label>
+                    <input type="number" id="id_stok" name="stok" value="${stok}" min="0"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2" required>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100 mt-6">
+                <button type="button" onclick="closeModal()" 
+                        class="px-4 py-2 text-gray-700 rounded-md hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-semibold">
+                    ${submitButtonText}
+                </button>
+            </div>
+        </form>
+    `;
+}
+
+function showCreateModal() {
+    modalContent.innerHTML = getShopFormTemplate({});
+    shopModal.classList.remove('hidden');
+    document.getElementById('shop-ajax-form').addEventListener('submit', handleShopFormSubmit);
+}
+
+function showUpdateModal(shopId) {
+    const shopToEdit = allShopData.find(shop => shop.id === shopId);
+    if (!shopToEdit) {
+        showToast('Error: Product data not found in cache.', 'error');
+        return;
+    }
+    if (!shopToEdit.stok) shopToEdit.stok = 0; 
+    
+    modalContent.innerHTML = getShopFormTemplate(shopToEdit);
+    shopModal.classList.remove('hidden');
+    document.getElementById('shop-ajax-form').addEventListener('submit', handleShopFormSubmit);
+}
+
+
+// --- HANDLER SUBMIT AJAX (CREATE & UPDATE) ---
+async function handleShopFormSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const shopId = form.getAttribute('data-shop-id');
+    const action = form.getAttribute('data-action');
+    
+    const method = action === 'update' ? 'PUT' : 'POST';
+
+    const data = Object.fromEntries(formData.entries());
+    data.is_featured = form.elements['is_featured'].checked;
+
+    const url = action === 'update' ? EDIT_SHOP_API(shopId) : CREATE_SHOP_API;
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRFToken': CSRF_TOKEN,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+            closeModal();
+            fetchShopFromServer(false); 
+            const message = action === 'update' ? 'Shop updated successfully!' : 'Shop created successfully!';
+            showToast(message, 'success');
+        } else {
+            const errorData = await response.json();
+            showToast(`Failed: ${errorData.message || 'Please check form fields or server data.'}`, 'error');
+        }
+    } catch (error) {
+        showToast('Network error during submission.', 'error');
+    }
+}
+
+
+// --- HANDLER DELETE KONFIRMASI ---
+let shopIdToDelete = null;
+
+function showDeleteModal(shopId) {
+    deleteModal.classList.remove('hidden');
+    shopIdToDelete = shopId;
+    confirmDeleteButton.onclick = () => handleConfirmDelete(shopIdToDelete);
+}
+
+function closeDeleteModal() {
+    deleteModal.classList.add('hidden');
+    shopIdToDelete = null;
+}
+
+async function handleConfirmDelete(shopId) {
+    closeDeleteModal();
+    
+    try {
+        const response = await fetch(DELETE_SHOP_API(shopId), {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': CSRF_TOKEN,
+            },
+        });
+
+        if (response.ok) {
+            fetchShopFromServer(false); 
+            showToast('Shop deleted successfully!', 'success');
+        } else {
+            const errorData = await response.json();
+            showToast(`Error deleting shop: ${errorData.message || 'Server error.'}`, 'error');
+        }
+    } catch (error) {
+        showToast('Network error during deletion.', 'error');
+    }
+}
+
+
+// --- FUNGSI UTILITY & INIALISASI ---
+
+function updateFilterButtonsAppearance() {
+    const activeClass = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700 cursor-pointer';
+    const inactiveClass = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white cursor-pointer';
+
+    if (activeFilter === 'all') {
+      showAllShopButton.className = activeClass;
+      showMyShopButton.className = inactiveClass;
+    } else {
+      showMyShopButton.className = activeClass;
+      showAllShopButton.className = inactiveClass;
+    }
+}
+
+function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+    loadingSpinner.classList.toggle('hidden', !showLoading);
+    errorMessage.classList.toggle('hidden', !showError);
+    emptyStateDisplay.classList.toggle('hidden', !showEmpty);
+    shopGridContainer.classList.toggle('hidden', !showGrid);
+
+    if (showGrid) {
+      shopGridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+    }
 }
 
 function getReadableCategoryName(categoryCode) {
-  const categoryMapping = {
-    transfer: 'Transfer',
-    update: 'Update',
-    exclusive: 'Exclusive',
-    match: 'Match',
-    rumor: 'Rumor',
-    analysis: 'Analysis',
- 
-    baju: 'Baju', 
-    sepatu: 'Sepatu',
-    hardware: 'Hardware',
-  };
-  return categoryMapping[categoryCode] || categoryCode;
+    // Kategori SINKRONISASI
+    const categoryMapping = {
+        kaos_adidas: 'Kaos Adidas',
+        sepatu_merah: 'Sepatu Merah',
+        jersey: 'Jersey',
+        bola: 'Bola',
+        sepatu_futsal: 'Sepatu Futsal',
+    };
+    return categoryMapping[categoryCode] || categoryCode;
 }
 
+// buildShopCardElement (Direvisi untuk Fallback data dan ID Pemilik)
 function buildShopCardElement(item) {
     const article = document.createElement('article');
     article.className = 'bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full';
@@ -138,20 +410,22 @@ function buildShopCardElement(item) {
 
     let createdAt = 'Invalid Date';
     try {
-        createdAt = new Date(item.created_at).toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
-        });
+        if (item.created_at) { 
+            createdAt = new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
     } catch (e) {
         console.error("Failed to parse date:", item.created_at);
     }
 
-    const title = DOMPurify.sanitize(item.name);
-    const content = DOMPurify.sanitize(item.description);
-    const category = DOMPurify.sanitize(item.category);
-    const thumbnail = DOMPurify.sanitize(item.thumbnail);
-    const shopViews = DOMPurify.sanitize(item.product_views);
+    // --- FIX UTAMA: DEKLARASI priceFormatted HARUS DI SINI ---
+    const priceFormatted = item.price ? Number(item.price).toLocaleString('id-ID') : 'N/A';
+    
+    // Fallbacks data lainnya
+    const title = DOMPurify.sanitize(item.name || 'No Title Available');
+    const content = DOMPurify.sanitize(item.description || 'No Description Provided');
+    const category = DOMPurify.sanitize(item.category || '');
+    const thumbnail = DOMPurify.sanitize(item.thumbnail || '');
+    const shopViews = DOMPurify.sanitize(item.product_views || 0);
     const isFeatured = item.is_featured;
     const isHot = shopViews > 20;
 
@@ -162,15 +436,13 @@ function buildShopCardElement(item) {
     const featuredLabel = isFeatured ? DOMPurify.sanitize(`<span class='inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800'>Featured</span>`) : '';
     const hotLabel = isHot ? DOMPurify.sanitize(`<span class='inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800'>Hot</span>`) : '';
 
-    const editDeleteHtml = CURRENT_USER_ID && Number(CURRENT_USER_ID) === Number(item.user_id)
+    // Perbaikan ID Pemilik (Sinkron dengan views.py)
+    const editDeleteHtml = CURRENT_USER_ID && Number(CURRENT_USER_ID) === Number(item.user_owner_id) 
         ? `<div class='flex space-x-2'>
-            <a href='${linkEdit}' class='text-gray-600 hover:text-gray-700 text-sm transition-colors'>Edit</a>
-            <a href='${linkDelete}' class='text-red-600 hover:text-red-700 text-sm transition-colors' onclick='return confirm("Are you sure you want to delete this article?")'>Delete</a>
+            <button onclick='showUpdateModal("${item.id}")' class='text-gray-600 hover:text-gray-700 text-sm transition-colors'>Edit</button>
+            <button onclick='showDeleteModal("${item.id}")' class='text-red-600 hover:text-red-700 text-sm transition-colors'>Delete</button>
           </div>`
         : '';
-        
-    // Format harga
-    const priceFormatted = item.price ? Number(item.price).toLocaleString('id-ID') : 'N/A';
 
     const cardHtml = `
         <div class="aspect-[16/9] relative overflow-hidden">
@@ -196,7 +468,7 @@ function buildShopCardElement(item) {
 
             <div class="text-lg font-bold text-green-600 mb-4">
             Rp ${priceFormatted}
-          </div>
+            </div>
           
           <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
             <a href="${linkDetail}" class="text-green-600 hover:text-green-700 font-medium text-sm transition-colors">Read more</a>
@@ -211,75 +483,76 @@ function buildShopCardElement(item) {
 
 // Render all shop cards
 function renderAllShopCards(shopItems) {
-  shopGridContainer.innerHTML = '';
-  shopItems.forEach(shopItem => {
-    const cardElement = buildShopCardElement(shopItem);
-    shopGridContainer.appendChild(cardElement);
-  });
+  shopGridContainer.innerHTML = '';
+  shopItems.forEach(shopItem => {
+    const cardElement = buildShopCardElement(shopItem);
+    shopGridContainer.appendChild(cardElement);
+  });
 }
 
 // Filter and display shop
 function filterAndDisplayShop() {
-  updateFilterButtonsAppearance();
-  
-  const filteredShop = activeFilter === 'all' 
-    ? allShopData 
-    : allShopData.filter(shop => Number(shop.user_id) === Number(CURRENT_USER_ID));
-  
-  if (filteredShop.length === 0) {
-    displayPageSection({ showEmpty: true });
-  } else {
-    renderAllShopCards(filteredShop);
-    displayPageSection({ showGrid: true });
-  }
+  updateFilterButtonsAppearance();
+  
+  // Perbaikan: Mengganti user_id dengan user_owner_id untuk filter
+  const filteredShop = activeFilter === 'all' 
+    ? allShopData 
+    : allShopData.filter(shop => Number(shop.user_owner_id) === Number(CURRENT_USER_ID));
+  
+  if (filteredShop.length === 0) {
+    displayPageSection({ showEmpty: true });
+  } else {
+    renderAllShopCards(filteredShop);
+    displayPageSection({ showGrid: true });
+  }
 }
 
 // Fetch shop data from server
 async function fetchShopFromServer() {
-  try {
-    displayPageSection({ showLoading: true });
-    
-    const response = await fetch(SHOP_API_ENDPOINT, {
-      headers: { 'Accept': 'application/json' },
-    });
+  try {
+    displayPageSection({ showLoading: true });
+    
+    const response = await fetch(SHOP_API_ENDPOINT, {
+      headers: { 'Accept': 'application/json' },
+    });
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch shop data from server');
-    }
+    if (!response.ok) {
+      throw new Error('Failed to fetch shop data from server');
+    }
 
-    const shopData = await response.json();
-    allShopData = shopData || [];
-    
-    filterAndDisplayShop();
-  } catch (error) {
-    console.error('Error loading shop:', error);
-    errorMessage.innerHTML = `<p class="text-red-600">Error loading data: ${error.message}. Please check your connection or server logs.</p>`;
-    displayPageSection({ showError: true });
-  }
+    const shopData = await response.json();
+    allShopData = shopData || [];
+    
+    filterAndDisplayShop();
+  } catch (error) {
+    console.error('Error loading shop:', error);
+    errorMessage.innerHTML = `<p class="text-red-600">Error loading data: ${error.message}. Please check your connection or server logs.</p>`;
+    displayPageSection({ showError: true });
+  }
 }
 
 function handleShowAllShopClick() {
-  activeFilter = 'all';
-  filterAndDisplayShop();
+  activeFilter = 'all';
+  filterAndDisplayShop();
 }
 
 function handleShowMyShopClick() {
-  activeFilter = 'my';
-  filterAndDisplayShop();
+  activeFilter = 'my';
+  filterAndDisplayShop();
 }
 
 function initializeShopPage() {
-  if(showAllShopButton && showMyShopButton) {
-      showAllShopButton.addEventListener('click', handleShowAllShopClick);
-      showMyShopButton.addEventListener('click', handleShowMyShopClick);
-  }
-  
-  fetchShopFromServer();
+  if(showAllShopButton && showMyShopButton) {
+      showAllShopButton.addEventListener('click', handleShowAllShopClick);
+      showMyShopButton.addEventListener('click', handleShowMyShopClick);
+  }
+  
+  fetchShopFromServer();
 }
 
 document.addEventListener('shopAdded', function() {
-    // Refresh data without page reload
-    fetchShopFromServer();
+    // Refresh data without page reload
+    fetchShopFromServer();
 });
 
 // Start application

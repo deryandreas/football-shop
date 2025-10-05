@@ -15,8 +15,8 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
-
-
+from django.views.decorators.http import require_http_methods 
+import json
 
 # Halaman utama
 
@@ -88,13 +88,17 @@ def show_json(request):
             'is_featured': shop.is_featured,
             'stok': shop.stok,
             'product_views': shop.product_views,
-            'user': shop.user.username if shop.user else None,  # <-- aman
-            'user_id': shop.user.id if shop.user else None, 
+            'user': shop.user.username if shop.user else None,
+            
+            # PENTING: Mengirim ID pemilik dengan nama user_owner_id (untuk JS)
+            'user_owner_id': shop.user.id if shop.user else None, 
+            
             'diskon': shop.diskon,
+            # PERBAIKAN DATE: Mengirim tanggal dalam format ISO 8601 yang dapat dibaca JS
+            'created_at': shop.created_at.isoformat() if shop.created_at else None, 
         }
         for shop in shop_list
     ]
-
     return JsonResponse(data, safe=False)
 
 # Data berdasarkan UUID (XML)
@@ -180,27 +184,106 @@ def delete_shop(request, id):
     return HttpResponseRedirect(reverse('main:show_main'))
 
 @csrf_exempt
-@require_POST
-def add_shop_entry_ajax(request):
-    name = strip_tags(request.POST.get("title")) # strip HTML tags!
-    content = strip_tags(request.POST.get("content")) # strip HTML tags!
-    category = request.POST.get("category")
-    thumbnail = request.POST.get("thumbnail")
-    is_featured = request.POST.get("is_featured") == 'on'  # checkbox handling
-    user = request.user
-    price = request.POST.get("price", 0) 
-    stok = request.POST.get("stok", 0) 
+@require_http_methods(["POST"])
+def create_shop_ajax(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Authentication required'}, status=403)
+        
+    try:
+        # PENTING: BACA DATA DARI BODY SEBAGAI JSON (MENGATASI "None")
+        data = json.loads(request.body)
+        
+        new_shop = Shop.objects.create(
+            user=request.user, # Field Anda bernama 'user'
+            name=data.get('name', 'Product Name'), 
+            description=data.get('description', 'No Description'),
+            price=data.get('price', 0),    
+            stok=data.get('stok', 0),
+            category=data.get('category'),
+            thumbnail=data.get('thumbnail'),
+            is_featured=data.get('is_featured', False),
+            diskon=data.get('diskon', 0)
+        )
+        
+        return JsonResponse({"status": "success", "message": "Shop created successfully"}, status=201)
 
-    new_shop = Shop(
-        name=name, 
-        description=content,
-        category=category,
-        thumbnail=thumbnail,
-        is_featured=is_featured,
-        user=user,
-        price=price,        
-        stok=stok,  
-    )
-    new_shop.save()
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Server error: {str(e)}'}, status=400)
 
-    return HttpResponse(b"CREATED", status=201)
+@csrf_exempt
+@require_http_methods(["PUT"])
+def edit_shop_ajax(request, id):
+    shop = get_object_or_404(Shop, pk=id)
+
+    if shop.user != request.user:
+        return JsonResponse({'status': 'error', 'message': 'Not authorized'}, status=403)
+        
+    try:
+        data = json.loads(request.body)
+        
+        # UPDATE FIELD
+        shop.name = data.get('name', shop.name)
+        shop.description = data.get('description', shop.description)
+        shop.price = data.get('price', shop.price)
+        shop.stok = data.get('stok', shop.stok)
+        shop.category = data.get('category', shop.category)
+        shop.thumbnail = data.get('thumbnail', shop.thumbnail)
+        shop.is_featured = data.get('is_featured', shop.is_featured)
+        shop.diskon = data.get('diskon', shop.diskon)
+        
+        shop.save()
+        
+        return JsonResponse({'status': 'success', 'message': 'Shop updated successfully'}, status=200)
+
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_shop_ajax(request, id):
+    shop = get_object_or_404(Shop, pk=id)
+    
+    if shop.user != request.user:
+        return JsonResponse({'status': 'error', 'message': 'Not authorized'}, status=403)
+        
+    shop.delete()
+    return JsonResponse({'status': 'success', 'message': 'Shop deleted successfully'}, status=204)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def login_user_ajax(request):
+    data = json.loads(request.body)
+    username = data.get('username')
+    password = data.get('password')
+
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        login(request, user)
+        # Mengembalikan data untuk diolah di frontend (untuk Toast/Update Navbar)
+        return JsonResponse({"status": "success", "message": "Login successful", "username": username}, status=200)
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid credentials"}, status=401)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def register_user_ajax(request):
+    data = json.loads(request.body)
+    # Gunakan data JSON untuk membuat form instance
+    # Catatan: UserCreationForm mungkin memerlukan lebih dari username dan password
+    form = UserCreationForm(data) 
+    
+    if form.is_valid():
+        user = form.save()
+        return JsonResponse({"status": "success", "message": "Account created successfully!", "username": user.username}, status=201)
+    else:
+        # Mengembalikan error validasi form
+        errors = dict(form.errors.items())
+        return JsonResponse({"status": "error", "message": "Registration failed.", "errors": errors}, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def logout_user_ajax(request):
+    logout(request)
+    return JsonResponse({"status": "success", "message": "Logged out successfully"}, status=200)

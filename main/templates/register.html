@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block meta %}
 <title>Register - Football Shop</title>
@@ -14,32 +15,7 @@
         <p class="text-gray-500">Create your Football Shop account</p>
       </div>
 
-      <!-- Form Errors Display -->
-      {% if form.non_field_errors %}
-        <div class="mb-6">
-          {% for error in form.non_field_errors %}
-            <div class="px-4 py-3 rounded text-sm border bg-red-50 border-red-200 text-red-700">
-              {{ error }}
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      {% if form.errors %}
-        <div class="mb-6">
-          {% for field, errors in form.errors.items %}
-            {% if field != '__all__' %}
-              {% for error in errors %}
-                <div class="px-4 py-3 rounded text-sm border bg-red-50 border-red-200 text-red-700 mb-2">
-                  <strong>{{ field|title }}:</strong> {{ error }}
-                </div>
-              {% endfor %}
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      <form method="POST" action="" class="space-y-5">
+      <form id="registerForm" class="space-y-5">
         {% csrf_token %}
         
         <div>
@@ -57,7 +33,7 @@
           <label for="password1" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
           <input 
             id="password1" 
-            name="password1" 
+            name="password" 
             type="password" 
             required 
             class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-green-500 transition duration-200" 
@@ -77,31 +53,11 @@
 
         <button 
           type="submit" 
+          id="registerButton"
           class="w-full bg-green-600 text-white font-medium py-3 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200">
           Create Account
         </button>
       </form>
-
-      <!-- Messages Display -->
-      {% if messages %}
-        <div class="mt-6">
-          {% for message in messages %}
-            <div 
-              class="
-                px-4 py-3 rounded text-sm border
-                {% if message.tags == 'success' %}
-                  bg-green-50 border-green-200 text-green-700
-                {% elif message.tags == 'error' %}
-                  bg-red-50 border-red-200 text-red-700
-                {% else %}
-                  bg-gray-50 border-gray-200 text-gray-700
-                {% endif %}
-              ">
-              {{ message }}
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
 
       <div class="mt-6 text-center">
         <p class="text-gray-500 text-sm">
@@ -115,4 +71,95 @@
     </div>
   </div>
 </div>
+
+<script>
+// PENTING: Anda harus memastikan fungsi showToast dan getCookie sudah ada di base.html atau main.html Anda.
+
+const REGISTER_API_ENDPOINT = "{% url 'main:register_ajax' %}";
+const LOGIN_PAGE_URL = "{% url 'main:login' %}";
+
+// Fungsi untuk mendapatkan CSRF token (diambil dari cookie)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const CSRF_TOKEN = getCookie('csrftoken');
+
+// Handler Utama
+document.getElementById('registerForm').addEventListener('submit', handleRegisterAjax);
+
+async function handleRegisterAjax(event) {
+    event.preventDefault(); // Mencegah form submit tradisional
+
+    const form = event.target;
+    const registerButton = document.getElementById('registerButton');
+
+    // Mengambil data formulir (pastikan nama field sesuai: username, password, password2)
+    const data = {
+        username: form.elements.username.value,
+        password: form.elements.password.value, // Menggunakan name="password" dari form.
+        password2: form.elements.password2.value,
+    };
+
+    // Mengubah tombol menjadi loading state
+    registerButton.disabled = true;
+    registerButton.textContent = 'Creating Account...';
+
+    try {
+        const response = await fetch(REGISTER_API_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': CSRF_TOKEN,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+            showToast(`Welcome, ${responseData.username}! Account created.`, 'success');
+            
+            // Tunggu sebentar sebelum redirect
+            setTimeout(() => {
+                window.location.href = LOGIN_PAGE_URL;
+            }, 1500); 
+
+        } else {
+            // REGISTRASI GAGAL: Tampilkan Toast Error
+            let errorMessage = responseData.message || "Registration failed due to server error.";
+            
+            // Menampilkan error validasi form yang spesifik jika tersedia
+            if (responseData.errors) {
+                const errorKeys = Object.keys(responseData.errors);
+                if (errorKeys.length > 0) {
+                    // Contoh: Password: ['Password is too short']
+                    const firstErrorField = errorKeys[0];
+                    const firstErrorMessage = responseData.errors[firstErrorField][0];
+                    errorMessage = `${firstErrorField.charAt(0).toUpperCase() + firstErrorField.slice(1)}: ${firstErrorMessage}`;
+                }
+            }
+            
+            showToast(errorMessage, 'error');
+        }
+        
+    } catch (error) {
+        showToast('Network error. Please try again.', 'error');
+    } finally {
+        // Kembalikan tombol ke state normal
+        registerButton.disabled = false;
+        registerButton.textContent = 'Create Account';
+    }
+}
+</script>
 {% endblock content %}
