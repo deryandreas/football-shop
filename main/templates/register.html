@@ -30,10 +30,10 @@
         </div>
 
         <div>
-          <label for="password1" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
           <input 
-            id="password1" 
-            name="password1" 
+            id="password" 
+            name="password" 
             type="password" 
             required 
             class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-green-500 transition duration-200" 
@@ -103,11 +103,19 @@ async function handleRegisterAjax(event) {
     const form = event.target;
     const registerButton = document.getElementById('registerButton');
 
+    // FIX FINAL: Payload disesuaikan untuk memuaskan semua validasi UserCreationForm
     const data = {
-    username: document.getElementById('username').value,
-    password1: document.getElementById('password1').value, 
-    password2: document.getElementById('password2').value, 
-};
+        username: document.getElementById('username').value,
+        // FIX UTAMA: Kita mengirimkan field 'password' dan 'password2'
+        password: document.getElementById('password').value, 
+        password2: document.getElementById('password2').value,
+        
+        // TRICK FIX: Mengirim nilai password yang sama dengan key 'password1' 
+        // untuk memuaskan validasi internal yang mencari nama field lama (jika ada)
+        password1: document.getElementById('password').value, 
+    };
+    // Catatan: Jika UserCreationForm berhasil dengan 'password' dan 'password2' saja, 
+    // Anda bisa menghapus 'password1' dari objek data ini.
 
     // Mengubah tombol menjadi loading state
     registerButton.disabled = true;
@@ -126,7 +134,7 @@ async function handleRegisterAjax(event) {
         const responseData = await response.json();
 
         if (response.ok) {
-          showToast('Success', `Welcome, ${responseData.username || data.username}! Account created.`, 'success');
+            showToast(`Welcome, ${responseData.username || data.username}! Account created.`, 'success');
             
             setTimeout(() => {
                 window.location.href = LOGIN_PAGE_URL;
@@ -146,11 +154,11 @@ async function handleRegisterAjax(event) {
                 }
             }
             
-              showToast('Error', errorMessage, 'error');
+            showToast(errorMessage, 'error');
         }
         
     } catch (error) {
-        showToast('Error', 'Network error. Please try again.', 'error');
+        showToast('Network error. Please try again.', 'error');
     } finally {
         registerButton.disabled = false;
         registerButton.textContent = 'Create Account';

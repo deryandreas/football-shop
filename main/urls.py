@@ -1,7 +1,7 @@
 # main/urls.py
 from django.urls import path
 from . import views 
-from uuid import UUID 
+from uuid import UUID # Diperlukan untuk <uuid:id>
 
 app_name = 'main'
 
@@ -23,11 +23,12 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
+
     
-    # 1. CREATE AJAX (Nama yang dicari oleh Baris 104 JavaScript yang error)
+    # 1. CREATE AJAX (Nama Baru)
     path('create-ajax/', views.create_shop_ajax, name='create_shop_ajax'), 
 
-    # 2. CREATE AJAX (NAMA LAMA: Ini adalah perbaikan wajib untuk Traceback Anda)
+    # 2. CREATE AJAX (Nama Lama untuk kompatibilitas)
     path('add-entry-ajax/', views.create_shop_ajax, name='add_shop_entry_ajax'), 
     
     # UPDATE AJAX
@@ -36,8 +37,8 @@ urlpatterns = [
     # DELETE AJAX
     path('delete-ajax/<uuid:id>/', views.delete_shop_ajax, name='delete_shop_ajax'),
     
-    # --- ENDPOINT AUTH AJAX ---
+ 
     path('login-ajax/', views.login_user_ajax, name='login_ajax'),
-    path('register-ajax/', views.register_user_ajax, name='register_ajax'), 
+    path('register-user-ajax/', views.register_user_ajax, name='register_user_ajax'), 
     path('logout-ajax/', views.logout_user_ajax, name='logout_ajax'),
 ]
