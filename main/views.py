@@ -269,19 +269,36 @@ def login_user_ajax(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def register_user_ajax(request):
-    data = json.loads(request.body)
-    # Gunakan data JSON untuk membuat form instance
-    # Catatan: UserCreationForm mungkin memerlukan lebih dari username dan password
-    form = UserCreationForm(data) 
-    
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({
+            "status": "error",
+            "message": "Invalid JSON format."
+        }, status=400)
+
+    # Buat form pakai dict yang sesuai field form Django
+    form = UserCreationForm({
+        'username': data.get('username', ''),
+        'password1': data.get('password1', ''),
+        'password2': data.get('password2', ''),
+    })
+
     if form.is_valid():
         user = form.save()
-        return JsonResponse({"status": "success", "message": "Account created successfully!", "username": user.username}, status=201)
+        return JsonResponse({
+            "status": "success",
+            "message": "Account created successfully!",
+            "username": user.username
+        }, status=201)
     else:
-        # Mengembalikan error validasi form
         errors = dict(form.errors.items())
-        return JsonResponse({"status": "error", "message": "Registration failed.", "errors": errors}, status=400)
-
+        return JsonResponse({
+            "status": "error",
+            "message": "Registration failed.",
+            "errors": errors
+        }, status=400)
+    
 @csrf_exempt
 @require_http_methods(["POST"])
 def logout_user_ajax(request):
