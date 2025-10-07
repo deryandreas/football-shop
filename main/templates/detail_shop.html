@@ -34,28 +34,52 @@
             <p class="text-gray-500">Please try again later.</p>
         </div>
         
-        <!-- Article Content -->
-        <article id="article-content" class="bg-white rounded-lg border border-gray-200 overflow-hidden hidden">
-            
-            <!-- Header -->
-            <div class="p-6 sm:p-8">
-                <div id="badges-container" class="flex flex-wrap items-center gap-2 mb-4">
-                    <!-- Dynamic badges will be inserted here -->
-                </div>
-                
-                <h1 id="article-title" class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-4">
-                    <!-- Title will be inserted here -->
-                </h1>
-                
-                <div class="flex flex-wrap items-center text-sm text-gray-500 gap-4">
-                    <time id="article-date">
-                        <!-- Date will be inserted here -->
-                    </time>
-                    <span id="article-views">
-                        <!-- Views will be inserted here -->
-                    </span>
-                </div>
-            </div>
+        <!-- Shop detail -->
+        <article id="shop-content" class="bg-white rounded-lg border border-gray-200 overflow-hidden hidden"> 
+            
+                        <div class="p-6 sm:p-8">
+                <div id="badges-container" class="flex flex-wrap items-center gap-2 mb-4">
+                                    </div>
+                
+                <h1 id="shop-title" class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-4"> 
+                                    </h1>
+                
+                <div class="flex flex-wrap items-center text-sm text-gray-500 gap-4">
+                    <time id="shop-date"> 
+                                            </time>
+                    <span id="shop-views">
+                                            </span>
+                </div>
+            </div>
+
+                        <div id="featured-image-container" class="px-6 sm:px-8 hidden">
+                <img id="shop-thumbnail" 
+                     src="" 
+                     alt="" 
+                     class="w-full h-64 sm:h-80 lg:h-96 object-cover rounded-lg">
+            </div>
+
+                        <div class="p-6 sm:p-8">
+                                <p id="shop-price" class="text-xl font-bold text-green-600 mb-4">Loading Price...</p>
+                <p id="shop-category" class="text-sm text-gray-500 mb-4">Loading Category...</p>
+                
+                <div class="prose prose-lg max-w-none">
+                    <div id="shop-description" class="text-gray-700 leading-relaxed whitespace-pre-line text-base sm:text-lg"> 
+                                            </div>
+                </div>
+            </div>
+
+                        <div class="border-t border-gray-200 p-6 sm:p-8 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-medium text-gray-900">
+                            <p id="shop-owner">Author: Loading...</p> 
+                        </div>
+                        <p class="text-sm text-gray-500">Author</p>
+                    </div>
+                </div>
+            </div>
+        </article>
 
             <!-- Featured Image -->
             <div id="featured-image-container" class="px-6 sm:px-8 hidden">
