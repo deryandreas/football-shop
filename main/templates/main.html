@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block meta %}
-<title>Football Shop</title>
+<title>Exercise Station</title>
 {% endblock meta %}
 
 {% block content %}
@@ -11,8 +11,8 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">Latest Football Shop</h1>
-      <p class="text-gray-600">Stay updated with the latest football stories and analysis</p>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Latest Exercise Station</h1>
+      <p class="text-gray-600">Stay updated with the latest product</p>
     </div>
 
     <div class="flex justify-between items-center mb-6">
@@ -63,7 +63,7 @@
         <img src="{% static 'image/no-shop.png' %}" alt="No shop available" class="w-full h-full object-contain">
       </div>
       <h3 class="text-lg font-medium text-gray-900 mb-2">No shop found</h3>
-      <p class="text-gray-500 mb-6">Be the first to share football shop with the community.</p>
+      <p class="text-gray-500 mb-6">Be the first to post exercise station with the community.</p>
       <a href="{% url 'main:create_shop' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
         Create Shop
       </a>
@@ -196,7 +196,7 @@ function getShopFormTemplate(shop = {}) {
             <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
             
             <div class="space-y-4">
-                <p class="text-sm text-gray-500">Share your football shop and stories with the community</p>
+                <p class="text-sm text-gray-500">Share your exercise station and stories with the community</p>
 
                 <div>
                     <label for="id_name" class="block text-sm font-medium text-gray-700">Name</label>
