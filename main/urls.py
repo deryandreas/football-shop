@@ -1,7 +1,10 @@
 # main/urls.py
 from django.urls import path
-from . import views 
+from . import views
+from main.views import proxy_image
 from uuid import UUID # Diperlukan untuk <uuid:id>
+from .views import create_shop_flutter
+
 
 app_name = 'main'
 
@@ -41,4 +44,7 @@ urlpatterns = [
     path('login-ajax/', views.login_user_ajax, name='login_ajax'),
     path('register-user-ajax/', views.register_user_ajax, name='register_user_ajax'), 
     path('logout-ajax/', views.logout_user_ajax, name='logout_ajax'),
+    path('proxy-image/', proxy_image, name='proxy_image'),
+    path('create-flutter/', create_shop_flutter, name='create_shop_flutter'),
+
 ]

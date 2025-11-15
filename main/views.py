@@ -17,17 +17,33 @@ from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
 from django.views.decorators.http import require_http_methods 
 import json
+import requests
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.html import strip_tags
+import json
+from django.http import JsonResponse
 
 # Halaman utama
 
 @login_required(login_url='/login')
 def show_main(request):
     filter_type = request.GET.get("filter", "all")  # default 'all'
+    sort_order = request.GET.get("sort")
 
     if filter_type == "all":
         shop_list = Shop.objects.all()
     else:
         shop_list = Shop.objects.filter(user=request.user)
+
+
+    if sort_order == "price-asc":
+        shop_list = shop_list.order_by("price")
+    elif sort_order == "price-desc":
+        shop_list = shop_list.order_by("price")
+
+    if request.headers.get('x-request-with') == 'XMLHttpRequest':
+        data = list(shop_list.values('name', 'price', 'description'))
+        return JsonResponse(data, safe=False)
 
     context = {
         'npm': '2406347380',
@@ -39,6 +55,7 @@ def show_main(request):
         'last_login': request.COOKIES.get('last_login', 'Never')
     }
     return render(request, "main.html",context)
+
 
 # Form tambah shop
 def create_shop(request):
@@ -309,3 +326,62 @@ def register_user_ajax(request):
 def logout_user_ajax(request):
     logout(request)
     return JsonResponse({"status": "success", "message": "Logged out successfully"}, status=200)
+
+def proxy_image(request):
+    image_url = request.GET.get('url')
+    if not image_url:
+        return HttpResponse('No URL provided', status=400)
+    
+    try:
+        # Fetch image from external source
+        response = requests.get(image_url, timeout=10)
+        response.raise_for_status()
+        
+        # Return the image with proper content type
+        return HttpResponse(
+            response.content,
+            content_type=response.headers.get('Content-Type', 'image/jpeg')
+        )
+    except requests.RequestException as e:
+        return HttpResponse(f'Error fetching image: {str(e)}', status=500)
+    
+@csrf_exempt
+def create_shop_flutter(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        name = strip_tags(data.get("name", ""))
+        price = data.get("price", 0)
+        description = strip_tags(data.get("description", ""))
+        thumbnail = data.get("thumbnail", "")
+        category = data.get("category", "")
+        is_featured = data.get("is_featured", False)
+        stok = data.get("stok", 0)
+        diskon = data.get("diskon", 0)
+
+        # otomatis: product_views = 0
+        product_views = 0  
+
+        # user dari session login
+        user = request.user if request.user.is_authenticated else None
+
+        new_shop = Shop(
+            name=name,
+            price=price,
+            description=description,
+            thumbnail=thumbnail,
+            category=category,
+            isFeatured=is_featured,
+            stok=stok,
+            productViews=product_views,
+            user=user.username if user else None,
+            userOwnerId=user.id if user else None,
+            diskon=diskon,
+            createdAt=datetime.timezone.now()
+        )
+
+        new_shop.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
